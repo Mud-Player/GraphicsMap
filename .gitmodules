@@ -1,0 +1,3 @@
+[submodule "GraphicsMapLib"]
+	path = GraphicsMapLib
+	url = https://github.com/Mud-Player/GraphicsMapLib
