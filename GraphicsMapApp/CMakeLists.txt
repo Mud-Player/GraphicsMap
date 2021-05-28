@@ -16,8 +16,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(${PROJECT_NAME}
     main.cpp
 )
+#
+find_package(Qt5 COMPONENTS Core Widgets Positioning REQUIRED)
 
 #
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Core Qt5::Widgets Qt5::Positioning)
 target_link_libraries(${PROJECT_NAME} PRIVATE Lib::GraphicsMap)
 
 #
