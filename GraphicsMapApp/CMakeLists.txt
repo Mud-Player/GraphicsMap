@@ -15,6 +15,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(${PROJECT_NAME}
     main.cpp
+    mapwidget.h
+    mapwidget.cpp
 )
 #
 find_package(Qt5 COMPONENTS Core Widgets Positioning REQUIRED)
