@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <interactivemap.h>
+#include <mapoperator.h>
 
 class MapWidget : public QWidget
 {
@@ -15,6 +16,7 @@ private:
     MapObjectOperator m_objOperator;
     MapEllipseOperator m_ellipseOperator;
     MapPolygonOperator m_polygonOperator;
+    MapRouteOperator m_routeOperator;
 };
 
 #endif // MAPWIDGET_H

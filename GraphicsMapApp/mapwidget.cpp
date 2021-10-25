@@ -10,6 +10,8 @@
 #include <mapobjectitem.h>
 #include <maprouteitem.h>
 #include <maprangeringitem.h>
+#include <mapoperator.h>
+#include <mappieitem.h>
 #include <QLineEdit>
 #include <QScrollBar>
 #include <QSlider>
@@ -18,11 +20,10 @@
 MapWidget::MapWidget(QWidget *parent) : QWidget(parent)
 {
     //
-    QGraphicsScene *scene = new QGraphicsScene;
-    m_map = new InteractiveMap(scene);
-    m_map->setYInverted(true);
-    m_map->setZoomLevel(5);
-    m_map->centerOn({40, 99});
+    m_map = new InteractiveMap;
+    m_map->setTMSMode(true);
+    m_map->setZoomLevel(10);
+    m_map->centerOn(QGeoCoordinate{40, 99});
     m_map->setTilePath("E:/Arcgis");
     m_map->setDragMode(QGraphicsView::ScrollHandDrag);
     m_map->setRenderHint(QPainter::HighQualityAntialiasing, true);
@@ -36,22 +37,26 @@ MapWidget::MapWidget(QWidget *parent) : QWidget(parent)
     QPushButton *obj = new QPushButton(u8"对象");
     QPushButton *polygon = new QPushButton(u8"多边形");
     QPushButton *ellipse = new QPushButton(u8"圆形");
+    QPushButton *route = new QPushButton(u8"航路");
     QSlider *slider = new QSlider;
     slider->setRange(0, 360);
     slider->setTickInterval(1);
     obj->setCheckable(true);
     polygon->setCheckable(true);
     ellipse->setCheckable(true);
+    route->setCheckable(true);
     QButtonGroup *buttonGroup = new QButtonGroup(this);
     buttonGroup->addButton(obj);
     buttonGroup->addButton(polygon);
     buttonGroup->addButton(ellipse);
+    buttonGroup->addButton(route);
 
     //
     QVBoxLayout *vLayout = new QVBoxLayout;
     vLayout->addWidget(obj);
     vLayout->addWidget(polygon);
     vLayout->addWidget(ellipse);
+    vLayout->addWidget(route);
     vLayout->addWidget(slider);
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(m_map);
@@ -66,10 +71,28 @@ MapWidget::MapWidget(QWidget *parent) : QWidget(parent)
     connect(ellipse, &QPushButton::clicked, this, [&](){
         m_map->setOperator(&m_ellipseOperator);
     });
-    connect(slider, &QSlider::valueChanged, this, [=](){
-        m_map->setRotation(slider->value());
+    connect(route, &QPushButton::clicked, this, [&](){
+        m_map->setOperator(&m_routeOperator);
     });
 
-    auto uav = m_map->addMapObject(1);
+
+    auto pie = new MapPieItem;
+    m_map->scene()->addItem(pie);
+    pie->setCoordinate({40, 99});
+    pie->setRadius(25e3);
+    pie->setBrush(Qt::red);
+
+    auto trapezoid = new MapTriTrapItem;
+    m_map->scene()->addItem(trapezoid);
+    trapezoid->setCoordinate({40.5, 99});
+    trapezoid->setBrush(Qt::yellow);
+    trapezoid->getTrapezoid()->setBrush(Qt::red);
+    trapezoid->setAzimuth(90);
+
+    auto uav = m_map->addMapItem<MapObjectItem>();
     uav->setCoordinate({40, 99});
+    trapezoid->attach(uav);
+    connect(slider, &QSlider::valueChanged, this, [=](){
+        uav->setRotation(slider->value()  * 360.0 / slider->maximum());
+    });
 }
